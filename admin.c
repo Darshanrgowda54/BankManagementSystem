@@ -1,6 +1,8 @@
 #include "admin.h"
+#include "enum.h"
 #include "fileoperations.h"
 #include "user.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,29 +20,18 @@ int adminLogin()
 
     if (strcmp(adminID, "123") == 0 && strcmp(adminPassword, "123") == 0)
     {
-        return 1;
+        return SUCCESS;
     }
-    return 0;
+    return FAILURE;
 }
-
-
-enum adminMenuOption
-{
-    CREATACCOUNT = 1,
-    DELETEACCOUNT,
-    UPDATEACCOUNT,
-    VIEWACCOUNTDETAILS,
-    SORTACCOUNTSTYPE,
-    DISPLAYDELETEDACCOUNTS,
-    LOGOUT
-};
 
 
 void adminMenu()
 {
     int choice;
 
-    while (1) {
+    while (true)
+    {
         printf("\n________ Admin Menu ________\n");
         printf("1. Create Account\n");
         printf("2. Delete Account\n");
@@ -87,7 +78,6 @@ void adminMenu()
             printf("Invalid choice. Please try again\n");
         }
     }
-    return ;
 }
 
 
@@ -103,14 +93,54 @@ void createAccount()
         return;
     }
 
-    printf("Enter User ID: ");
-    scanf(" %[^\n]", newuser->userID);
-    printf("Enter Password: ");
-    scanf(" %[^\n]", newuser->userPassword);
+    while(true)
+    {
+        printf("Enter User ID: ");
+        char UserID[10];
+        if(scanf(" %s",UserID) == 1 && strlen(UserID) >=5 && strlen(UserID) <=10)
+        {
+            strcpy(newuser->userID,UserID);
+            break;
+        }
+        else
+        {
+            printf("Invalid UserID\n");
+        }
+    }
+
+    while(true)
+    {
+        printf("Enter Password: ");
+        char Password[10];
+        if(scanf(" %s",Password) == 1 && strlen(Password) >= 5 && strlen(Password) <=10 )
+        {
+            strcpy(newuser->userPassword,Password);
+            break;
+        }
+        else
+        {
+            printf("Invalid Password\n");
+        }
+    }
+
     printf("Enter Name: ");
     scanf(" %[^\n]", newuser->name);
-    printf("Enter Mobile Number: ");
-    scanf(" %[^\n]", newuser->mobile);
+
+    while(true)
+    {
+        printf("Enter Mobile Number: ");
+        char number[10];
+        if(scanf(" %s", number) && strlen(number) == 10)
+        {
+            strcpy(newuser->mobile,number);
+            break;
+        }
+        else
+        {
+            printf("Invalid Mobile Number\n");
+        }
+    }
+
     printf("Enter Email: ");
     scanf("%s", newuser->email);
     printf("Enter Address: ");
@@ -119,7 +149,7 @@ void createAccount()
     newuser->next = NULL;
 
 
-    while (1)
+    while (true)
     {
         printf("Enter Account Type (Savings/Current): ");
         scanf("%s", newuser->account.accountType);
@@ -134,7 +164,7 @@ void createAccount()
     }
 
 
-    while (1)
+    while (true)
     {
         int Duplicate = 0;
         user *temp = head;
@@ -181,8 +211,8 @@ void createAccount()
     saveAccountToFile(newuser);
 
     printf("Account created successfully with Account Number: %d\n", newuser->account.accountNumber);
-    return;
 }
+
 
 
 void deleteAccount()
@@ -209,8 +239,6 @@ void deleteAccount()
 
             temp->status = 'D';
             deleteAccountInFile(accountNumber);
-
-            //free(temp);
             printf("Account Number %d deleted successfully.\n", accountNumber);
             return;
         }
@@ -218,17 +246,8 @@ void deleteAccount()
         temp = temp->next;
     }
     printf("Account Number %d not found.\n", accountNumber);
-    return;
 }
 
-
-enum  updateAccountMenu{
-    NAME = 1,
-    MOBILENUMBER,
-    EMAIL,
-    ADDRESS,
-    EXIT
-} ;
 
 
 void updateAccount()
@@ -249,14 +268,14 @@ void updateAccount()
                 printf("This account is not active and cannot be updated.\n");
                 return;
             }
-            while (1)
+            while (true)
             {
                 printf("Select the field you want to update\n");
                 printf("1. Name\n");
                 printf("2. Mobile Number\n");
                 printf("3. Email\n");
                 printf("4. Address\n");
-                printf("5. Exit\n");
+                printf("5. Exit from UpdatedAccount\n");
                 printf("Enter your choice: ");
                 scanf("%d", &choice);
 
@@ -269,10 +288,22 @@ void updateAccount()
                     printf("Name updated successfully.\n");
                     break;
                 case MOBILENUMBER:
-                    printf("Enter New Mobile Number: ");
-                    scanf(" %[^\n]", temp->mobile);
-                    updateAccountInFile(temp->account.accountNumber, MOBILENUMBER, temp->mobile);
-                    printf("Mobile number updated successfully.\n");
+                    while(true)
+                    {
+                        printf("Enter Mobile Number: ");
+                        char number[10];
+                        if(scanf(" %s", number) && strlen(number)==10)
+                        {
+                            strcpy(temp->mobile,number);
+                            updateAccountInFile(temp->account.accountNumber, MOBILENUMBER, temp->mobile);
+                            printf("Mobile number updated successfully.\n");
+                            break;
+                        }
+                        else
+                        {
+                            printf("Invalid Mobile Number\n");
+                        }
+                    }
                     break;
                 case EMAIL:
                     printf("Enter New Email: ");
@@ -286,8 +317,8 @@ void updateAccount()
                     updateAccountInFile(temp->account.accountNumber, ADDRESS, temp->address);
                     printf("Address updated successfully.\n");
                     break;
-                case EXIT:
-                    printf("Exiting update menu\n\n");
+                case EXITFROMUPDATEDACCOUNT:
+                    printf("Exiting Updated Account\n\n");
                     return;
                 default:
                     printf("Invalid choice. Please try again.\n");
@@ -297,7 +328,6 @@ void updateAccount()
         temp = temp->next;
     }
     printf("Account not found.\n");
-    return;
 }
 
 
@@ -315,7 +345,7 @@ void viewAccountDetails()
         {
             printf("\n________ Account Details ________\n");
             printf("Account Number: %d\n", temp->account.accountNumber);
-            printf("Name: %s\n", temp->name);
+            printf("Name:%s\n", temp->name);
             printf("Mobile: %s\n", temp->mobile);
             printf("Email: %s\n", temp->email);
             printf("Address: %s\n", temp->address);
@@ -326,8 +356,37 @@ void viewAccountDetails()
         temp = temp->next;
     }
     printf("Account not found.\n");
-    return;
 }
+
+
+
+void displayDeletedAccounts()
+{
+    user *temp = head;
+    int found = 0;
+
+    printf("\nDeleted Accounts:\n");
+    printf("----------------------------------\n");
+
+    while (temp != NULL)
+    {
+        if (temp->status == 'D')
+        {
+            printf("Account Number: %d\n", temp->account.accountNumber);
+            printf("Name: %s\n", temp->name);
+            printf("Balance: %.2f\n", temp->account.balance);
+            printf("----------------------------------\n");
+            found = 1;
+        }
+        temp = temp->next;
+    }
+
+    if (found == 0)
+    {
+        printf("No deleted accounts found.\n");
+    }
+}
+
 
 
 user *mergeSortedLists(user *a, user *b)
@@ -360,7 +419,7 @@ user *mergeSortedLists(user *a, user *b)
 user *mergeSort(user *h)
 {
     if (h == NULL || h->next == NULL)
-    return h;
+        return h;
 
     user *fast = h->next;
     user *slow = h;
@@ -422,30 +481,5 @@ void sortAccountsType()
 }
 
 
-void displayDeletedAccounts()
-{
-    user *temp = head;
-    int found = 0;
 
-    printf("\nDeleted Accounts:\n");
-    printf("----------------------------------\n");
-
-    while (temp != NULL)
-    {
-        if (temp->status == 'D')
-        {
-            printf("Account Number: %d\n", temp->account.accountNumber);
-            printf("Name: %s\n", temp->name);
-            printf("Balance: %.2f\n", temp->account.balance);
-            printf("----------------------------------\n");
-            found = 1;
-        }
-        temp = temp->next;
-    }
-
-    if (found == 0)
-    {
-        printf("No deleted accounts found.\n");
-    }
-}
 

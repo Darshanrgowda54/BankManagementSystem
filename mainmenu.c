@@ -1,15 +1,9 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include "admin.h"
 #include "fileoperations.h"
 #include "user.h"
-
-enum mainMenuOption
-{
-    ADMIN = 1,
-    USER,
-    EXIT
-};
+#include <stdbool.h>
+#include "enum.h"
 
 
 int mainMenu()
@@ -19,9 +13,9 @@ int mainMenu()
 
     int choice;
 
-    while (1)
+    while (true)
     {
-        printf("\n________ Bank Management System ________\n");
+        printf("\n________ Wellcome to PThinkS Bank ________\n");
         printf("1. Admin Login\n");
         printf("2. User Login\n");
         printf("3. Exit\n");
@@ -41,18 +35,18 @@ int mainMenu()
                 printf("Invalid admin credentials.\n");
             }
             break;
+
         case USER:
             userLogin();
             break;
 
         case EXIT:
             printf("Thank you. Please visit again\n");
-            free(head);
-            return 0;
+            return SUCCESS;
 
         default:
             printf("Invalid choice. Please try again.\n");
-            break;
+
         }
     }
 }
